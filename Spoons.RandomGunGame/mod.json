@@ -1,0 +1,32 @@
+{
+    "Name": "Spoons.RandomGunGame",
+    "Description": "Gun Game but with randomly generated tacticals and weapons",
+    "Version": "1.0.0",
+
+    "LoadPriority": 1,
+    "ConVars": [],
+    "Scripts": [
+		{
+			"Path": "gamemodes/sh_gamemode_rngg.gnut",
+			"RunOn": "( CLIENT || SERVER ) && MP",
+			"ClientCallback": {
+				"Before": "Sh_GamemodeRNGG_Init"
+			},
+			
+			"ServerCallback": {
+				"Before": "Sh_GamemodeRNGG_Init"
+			}
+		},
+		{
+			"Path": "gamemodes/_gamemode_rngg.gnut",
+			"RunOn": "SERVER && MP"
+		},
+		{
+			"Path": "gamemodes/cl_gamemode_rngg.gnut",
+			"RunOn": "CLIENT && MP"
+		}
+    ],
+    "Localisation": [
+        "resource/rng_gun_game_%language%.txt"
+    ]
+}

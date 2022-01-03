@@ -1,0 +1,140 @@
+global function Sh_GamemodeRNGG_Init
+global function GetRandomGunGameWeapons
+global function GetRandomGunGameTacticals
+
+global const string GAMEMODE_RNGG = "rngg"
+
+global struct RandomGunGameWeapon
+{
+	string weapon
+	array<string> mods
+	int offhandSlot = -1
+}
+
+global struct RandomGunGameTactical
+{
+	string weapon
+	array<string> mods
+	int offhandSlot = 1
+}
+
+struct {
+	array<RandomGunGameWeapon> weapons
+	array<RandomGunGameTactical> tacticals
+} file
+
+
+
+void function Sh_GamemodeRNGG_Init()
+{
+	// create custom gamemode
+	AddCallback_OnCustomGamemodesInit( CreateGamemodeRNGG )
+}
+
+void function CreateGamemodeRNGG()
+{
+	GameMode_Create( GAMEMODE_RNGG )
+	GameMode_SetName( GAMEMODE_RNGG, "#GAMEMODE_RNGG" )
+	GameMode_SetDesc( GAMEMODE_RNGG, "#PL_rngg_desc" )
+	GameMode_SetGameModeAnnouncement( GAMEMODE_RNGG, "ffa_modeDesc" )
+	GameMode_SetDefaultTimeLimits( GAMEMODE_RNGG, 10, 0.0 )
+	GameMode_AddScoreboardColumnData( GAMEMODE_RNGG, "#SCOREBOARD_SCORE", PGS_ASSAULT_SCORE, 2 )
+	GameMode_AddScoreboardColumnData( GAMEMODE_RNGG, "#SCOREBOARD_PILOT_KILLS", PGS_PILOT_KILLS, 2 )
+	GameMode_SetColor( GAMEMODE_RNGG, [147, 204, 57, 255] )
+	
+	AddPrivateMatchMode( GAMEMODE_RNGG ) // add to private lobby modes
+	
+
+
+	// load array of allowed guns
+	array<string> allowedWeapons
+
+	allowedWeapons.append("mp_weapon_alternator_smg") // yes this is really awful, deal with it, i dont feel like having a line of code a million miles long
+	allowedWeapons.append("mp_weapon_arc_launcher")
+	allowedWeapons.append("mp_weapon_autopistol")
+	allowedWeapons.append("mp_weapon_car")
+	allowedWeapons.append("mp_weapon_defender")
+	allowedWeapons.append("mp_weapon_dmr")
+	allowedWeapons.append("mp_weapon_doubletake")
+	allowedWeapons.append("mp_weapon_epg")
+	allowedWeapons.append("mp_weapon_esaw")
+	allowedWeapons.append("mp_weapon_g2")
+	allowedWeapons.append("mp_weapon_hemlok")
+	allowedWeapons.append("mp_weapon_hemlok_smg")
+	allowedWeapons.append("mp_weapon_lmg")
+	allowedWeapons.append("mp_weapon_lstar")
+	allowedWeapons.append("mp_weapon_mastiff")
+	allowedWeapons.append("mp_weapon_r97")
+	allowedWeapons.append("mp_weapon_pulse_lmg")
+	allowedWeapons.append("mp_weapon_rspn101")
+	allowedWeapons.append("mp_weapon_rspn101_og")
+	allowedWeapons.append("mp_weapon_semipistol")
+	allowedWeapons.append("mp_weapon_shotgun")
+	allowedWeapons.append("mp_weapon_shotgun_pistol")
+	allowedWeapons.append("mp_weapon_smart_pistol")
+	allowedWeapons.append("mp_weapon_smr")
+	allowedWeapons.append("mp_weapon_sniper")
+	allowedWeapons.append("mp_weapon_softball")
+	allowedWeapons.append("mp_weapon_vinson")
+	allowedWeapons.append("mp_weapon_wingman")
+	allowedWeapons.append("mp_weapon_wingman_n")
+	allowedWeapons.append("mp_weapon_yh803")
+	
+	
+	
+	
+	// load array of allowed tacticals
+	array<string> allowedTacticals
+	allowedTacticals.append("mp_ability_cloak")
+	allowedTacticals.append("mp_ability_grapple")
+	allowedTacticals.append("mp_ability_heal")
+	allowedTacticals.append("mp_ability_holopilot")
+	allowedTacticals.append("mp_ability_shifter")
+	allowedTacticals.append("mp_weapon_grenade_sonar")
+	
+
+	// create array of guns and tacticals
+	for (int i = 0; i < GetCurrentPlaylistVarInt( "scorelimit", GetRandomGunGameWeapons().len() ); i++) 
+	{
+		RandomGunGameWeapon weapon;
+		int allowedWeaponsLength = allowedWeapons.len() // i hate this but squirrel doesnt like me doing .len within RandomInt apparently
+		weapon.weapon = allowedWeapons[RandomInt(allowedWeaponsLength)]
+		file.weapons.append(weapon)
+		
+
+		RandomGunGameTactical tactical;
+		int allowedTacticalsLength = allowedTacticals.len() // i hate this but squirrel doesnt like me doing .len within RandomInt apparently
+		tactical.weapon = allowedTacticals[RandomInt(allowedTacticalsLength)]
+		file.tacticals.append(tactical)
+	}
+	
+	
+	
+	// set this to the number of guns
+	GameMode_SetDefaultScoreLimits( GAMEMODE_RNGG, 30, 0 )
+	
+	#if SERVER
+		GameMode_AddServerInit( GAMEMODE_RNGG, GamemodeRNGG_Init )
+		GameMode_AddServerInit( GAMEMODE_RNGG, GamemodeFFAShared_Init )
+		GameMode_SetPilotSpawnpointsRatingFunc( GAMEMODE_RNGG, RateSpawnpoints_Generic )
+		GameMode_SetTitanSpawnpointsRatingFunc( GAMEMODE_RNGG, RateSpawnpoints_Generic )
+	#elseif CLIENT
+		GameMode_AddClientInit( GAMEMODE_RNGG, ClGamemodeRNGG_Init )
+		GameMode_AddClientInit( GAMEMODE_RNGG, GamemodeFFAShared_Init )
+		GameMode_AddClientInit( GAMEMODE_RNGG, ClGamemodeFFA_Init )
+	#endif
+	#if !UI
+		GameMode_SetScoreCompareFunc( GAMEMODE_RNGG, CompareAssaultScore )
+		GameMode_AddSharedInit( GAMEMODE_RNGG, GamemodeFFA_Dialogue_Init )
+	#endif
+}
+
+array<RandomGunGameWeapon> function GetRandomGunGameWeapons()
+{
+	return file.weapons
+}
+
+array<RandomGunGameTactical> function GetRandomGunGameTacticals()
+{
+	return file.tacticals
+}

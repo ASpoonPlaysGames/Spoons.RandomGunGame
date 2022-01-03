@@ -1,0 +1,12 @@
+"lang"
+{
+	"Language" "english"
+	"Tokens"
+	{
+		"PL_rngg" "Random Gun Game"
+		"PL_rngg_lobby" "Random Gun Game Lobby"
+		"PL_rngg_desc" "Random Weapons and Tacticals. Get a kill with each gun to win."
+		"PL_rngg_abbr" "RNGG"
+		"GAMEMODE_RNGG" "Random Gun Game"
+	}
+}
